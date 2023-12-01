@@ -1,0 +1,216 @@
+<%- include ('layout/header') %>
+<%- include ('layout/nav') %>
+
+<head>
+    <style>
+        .container-title {
+        background-color: #f2f2f2; /* Warna latar belakang */
+        padding: 1px; /* Ruang di sekitar teks */
+        margin-top: 1px; /* Jarak antara container dan elemen berikutnya */
+        width: 100%; /* Mengatur lebar elemen menjadi 100% lebar kontennya */
+        text-align: left; /* Mengatur teks menjadi tengah */
+        position: relative; /* Mengatur posisi relatif untuk mengontrol posisi elemen */
+        left: 0; /* Mengatur posisi kiri ke 0 untuk memastikan elemen dimulai dari sisi kiri */
+        }
+
+        .container-title p {
+            font-size: 15px; /* Ukuran teks "Tambah Buku" */
+            margin: 0; /* Menghapus margin bawaan dari <h2> */
+        }
+        /* CSS untuk styling tabel data buku */
+        .buku-table {
+            width: 100%;
+            border: 1px solid rgb(0, 145, 241);
+            border-collapse: collapse;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+
+        .buku-table th{
+            border: 1px solid rgb(167, 171, 173);    
+            padding: 8px;
+            text-align: center;
+        }
+        .buku-table td {
+            border: 1px solid rgb(182, 182, 182);    
+            padding: 8px;
+            text-align: left;
+        }
+
+        .buku-table th {
+            background-color: rgb(179, 183, 185);
+            color: #fff;
+            /* Gaya untuk header kolom */
+        }
+        
+        .buku-table tr:hover{
+            background-color: rgb(186, 198, 207);
+            color: rgb(0, 0, 0);
+        }
+        .btn-delete {
+        background-color: #c50d00; /* Green background for delete */
+        }
+        .btn-delete:hover {
+        background-color: #f30000; /* Green background for delete */
+        }
+
+        .btn-detail {
+        background-color: #eec200; /* Blue background for tambah stok */
+        }
+        .btn-detail:hover {
+        background-color: #009414 ; /* Blue background for tambah stok */
+        }
+
+        .btn-group button {
+        border: 1px; 
+        color: rgb(255, 255, 255); /* White text for all buttons */
+        padding: 3px 16px; /* Some padding for all buttons */
+        cursor: pointer; /* Pointer/hand icon for all buttons */
+        float: left; /* Float the buttons side by side */
+        margin-right: 10px; /* Add margin to create space between buttons */
+        }
+
+        /* Clear floats (clearfix hack) */
+        .btn-group:after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+
+        .btn-group button:last-child {
+        margin-right: 20px; /* Remove margin for the last button */
+        }
+        .barang-list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .barang-item {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<div class="content">
+    <div class="container-title">
+        <p>Riwayat Transaksi</p>
+    </div>
+        <br>
+            <!-- Form Pencarian -->
+            <form id="formCari" action="/riwayatTransaksi/cari" method="GET" onsubmit="getFilteredHistory();">
+                <label for="startDate">Mulai Tanggal:</label>
+                <input type="date" name="startDate" required>
+                <label for="endDate">Sampai Tanggal:</label>
+                <input type="date" name="endDate" required>
+                <button class="cari-btn" type="submit"><i class="fa fa-search" style="color:white"></i></button>
+            </form>
+        </br>   
+    <table class="buku-table" style="width:100%">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Tanggal Transaksi</th>
+                <th>Kode Transaksi</th>
+                <th>Pelanggan</th>
+                <th>Judul Buku</th>
+                <th>Qty</th>
+                <th>Harga Jual</th>
+                <th>Total Pembelian</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let i = 0; i < riwayatTransaksi.length; i++) { %>
+                <% const transaksi = riwayatTransaksi[i]; %>
+                <!-- Loop through detail_transaksi for the current transaction -->
+                <% const detailBarang = transaksi.detail_transaksi ? transaksi.detail_transaksi.split(';') : [] %>
+                <% for (let j = 0; j < detailBarang.length; j++) { %>
+                    <% const barangInfo = detailBarang[j].split(':') %>
+                    <tr>
+                        <td><%= i + 1 %></td>
+                        <td><%= transaksi.tgl_transaksi instanceof Date ? transaksi.tgl_transaksi.toDateString() : 'Invalid Date' %></td>
+                        <td><%= transaksi.kode_transaksi %></td>
+                        <td><%= transaksi.namaPelanggan %></td>
+                        <td><%= transaksi.judul %></td> <!-- Nama Barang -->
+                        <td><%= barangInfo[2] %></td> <!-- Jumlah Beli -->
+                        <td>Rp <%= barangInfo[4]?.toLocaleString() %></td> <!-- Harga Jual (use optional chaining) -->
+                        <td>Rp <%= (barangInfo[2] * barangInfo[4])?.toLocaleString() %></td> <!-- Total -->
+                    </tr>
+                <% } %>
+            <% } %>
+        </tbody>
+    </table> 
+    
+</div>
+
+<%- include ('layout/footer') %>
+
+
+<script>
+async function cariRiwayatTransaksi(startDate, endDate) {
+  const response = await fetch(`/path/ke/data/riwayattransaksi?startDate=${startDate}&endDate=${endDate}`);
+  const data = await response.json();
+  return data;
+}
+
+async function getFilteredHistory() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    // Validate if start date is before end date, handle user feedback as needed
+    if (startDate && endDate && startDate > endDate) {
+        alert('Invalid date range. Please select a valid date range.');
+        return;
+    }
+
+    try {
+    // Memanggil fungsi untuk mendapatkan data riwayat transaksi dari server
+    const filteredHistoryData = await cariRiwayatTransaksi(startDate, endDate);
+
+    // Menampilkan data yang diterima dari server di konsol
+    console.log('Received filtered history data:', filteredHistoryData);
+
+    // Memanggil fungsi untuk memperbarui tabel dengan data yang diterima
+    updateTable(filteredHistoryData);
+} catch (error) {
+    console.error('Error fetching filtered history:', error.message);
+}
+}
+
+function updateTable(historyData) {
+    try {
+        const tbody = document.querySelector('.buku-table tbody');
+
+        // Clear existing rows
+        tbody.innerHTML = '';
+
+        // Loop melalui data riwayatTransaksi dan detailBarang
+        for (let i = 0; i < historyData.length; i++) {
+            const transaksi = historyData[i];
+            const detailBarang = transaksi.detail_transaksi ? transaksi.detail_transaksi.split(';') : [];
+
+            // Loop melalui detailBarang untuk mengisi tabel
+            for (let j = 0; j < detailBarang.length; j++) {
+                const barangInfo = detailBarang[j].split(':');
+                const total = barangInfo[2] * barangInfo[4];
+
+                // Membuat elemen <tr> dan mengisinya dengan data
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${new Date(transaksi.tgl_transaksi).toDateString()}</td>
+                    <td>${transaksi.transaksi_kode_transaksi}</td>
+                    <td>${transaksi.namaPelanggan}</td>
+                    <td>${transaksi.judul}</td>
+                    <td>${barangInfo[2]}</td>
+                    <td>Rp ${barangInfo[4]?.toLocaleString()}</td>
+                    <td>Rp ${total.toLocaleString()}</td>
+                `;
+
+                // Menambahkan elemen <tr> ke dalam tbody
+                tbody.appendChild(row);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating table:', error.message);
+    }
+}
+</script>

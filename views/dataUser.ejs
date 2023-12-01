@@ -1,0 +1,195 @@
+<%- include ('layout/header') %>
+<%- include ('layout/nav') %>
+<head>
+    <style>
+        .container-title {
+        background-color: #f2f2f2; /* Warna latar belakang */
+        padding: 1px; /* Ruang di sekitar teks */
+        margin-top: 1px; /* Jarak antara container dan elemen berikutnya */
+        width: 100%; /* Mengatur lebar elemen menjadi 100% lebar kontennya */
+        text-align: left; /* Mengatur teks menjadi tengah */
+        position: relative; /* Mengatur posisi relatif untuk mengontrol posisi elemen */
+        left: 0; /* Mengatur posisi kiri ke 0 untuk memastikan elemen dimulai dari sisi kiri */
+        }
+
+        .container-title p {
+            font-size: 15px; /* Ukuran teks "Tambah Buku" */
+            margin: 0; /* Menghapus margin bawaan dari <h2> */
+        }
+         /* CSS untuk styling tabel data buku */
+         .buku-table {
+            width: 100%;
+            border: 1px solid rgb(0, 145, 241);
+            border-collapse: collapse;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+
+        .buku-table th{
+            border: 1px solid rgb(0, 145, 241);    
+            padding: 8px;
+            text-align: center;
+        }
+        .buku-table td {
+            border: 1px solid rgb(0, 153, 255);    
+            padding: 8px;
+            text-align: left;
+        }
+
+        .buku-table th {
+            background-color: rgb(0, 153, 255);
+            color: #fff;
+            /* Gaya untuk header kolom */
+        }
+        
+        .buku-table tr:hover{
+            background-color: rgb(110, 196, 253);
+            color: #fff;
+        }
+        .form-table {
+            width: 70%;
+            border-collapse: collapse;
+            margin: 20px;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+        .form-table label {   
+            padding: 4px;
+            text-align: left;
+        }
+        .form-btn {
+            border-radius: 2px  ;
+            background-color: rgb(87, 187, 253);
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 15px;
+            padding: 5px;
+            width: 100px;   
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .form-btn:hover {
+            background-color: rgb(71, 170, 236);
+        }
+        .input-field {
+        width: 80%;
+        padding: 1px;
+        outline: none;
+        border: 1 solid rgb(212, 212, 212);
+        }
+
+        .input-field:focus {
+        border: 2px solid rgb(71, 170, 236);
+        }
+        .btn-delete {
+        background-color: #c50d00; /* Green background for delete */
+        }
+        .btn-delete:hover {
+        background-color: #f30000; /* Green background for delete */
+        }
+
+        .btn-update {
+        background-color: #007710; /* Blue background for tambah stok */
+        }
+        .btn-update:hover {
+        background-color: #009414 ; /* Blue background for tambah stok */
+        }
+        .btn-reset {
+        background-color: #00146d; /* Blue background for tambah stok */
+        }
+        .btn-reset:hover {
+        background-color: #0047a3 ; /* Blue background for tambah stok */
+        }
+        .btn-group button {
+        border: 1px; 
+        color: rgb(255, 255, 255); /* White text for all buttons */
+        padding: 3px 16px; /* Some padding for all buttons */
+        cursor: pointer; /* Pointer/hand icon for all buttons */
+        float: left; /* Float the buttons side by side */
+        margin-right: 7px; /* Add margin to create space between buttons */
+        }
+
+        /* Clear floats (clearfix hack) */
+        .btn-group:after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+
+        .btn-group button:last-child {
+        margin-right: 20px; /* Remove margin for the last button */
+        }
+    </style>
+</head>
+<div class="content">
+    <div class="container-title">
+        <p>Tambah Kasir Baru</p>
+    </div>
+    <form action="/dataUser/add" method="POST" class="form-table">
+        <table  class="form-table">  
+            <tr>
+                <td>Nama Kasir</td>
+                <td><input  class="input-field" type="text" name="name" required></td>
+                <td>Username</td>
+                <td><input  class="input-field" type="text" name="username" required></td>
+            </tr>
+            <tr>
+                <td>No Telpon</td>
+                <td><input  class="input-field" type="text" name="notlp" required></td>
+                <td>Password</td>
+                <td><input  class="input-field" type="text" name="password" required></td>
+            </tr>
+            <tr>
+                <td>Alamat</td>
+                <td><input  class="input-field" type="text" name="alamat" required></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button  class="form-btn" type="submit" name="aksi" required>Simpan</button>
+                </td>
+            </tr>
+        </table>
+    </form><br>
+
+    <!--Tabel data kasir-->
+    <table class="buku-table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Nama Kasir</th>
+                <th>No Telpon</th>
+                <th>Alamat</th>
+                <th>Username</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.name %></td>
+                    <td><%= user.notlp %></td>
+                    <td><%= user.alamat %></td>
+                    <td><%= user.username %></td>
+                      <!-- Tombol edit, hapus, reset password -->
+                    <td>
+                        <center><div class="btn-group">
+                            <form action="/dataUser/delete/<%= user.username %>" method="POST">
+                                <button class="btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus data user ini?')" type="submit">Delete</button>
+                            </form>
+                            <form action="/dataUser/update/<%= user.username %>" method="GET">
+                                <button class="btn-update" type="submit">Update</button>
+                            </form>
+                            <form action="/dataUser/reset-password/<%= user.username %>" method="GET">
+                                <button class="btn-reset" type="submit">Reset Password</button>
+                            </form>
+                        </div></center>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<%- include ('layout/footer') %>
+
+
+
+

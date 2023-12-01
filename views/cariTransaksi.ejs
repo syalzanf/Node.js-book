@@ -1,0 +1,82 @@
+<%- include ('layout/header') %>
+<%- include ('layout/nav') %>
+
+<head>
+    <style>
+        .container-title {
+        background-color: #f2f2f2; /* Warna latar belakang */
+        padding: 1px; /* Ruang di sekitar teks */
+        margin-top: 1px; /* Jarak antara container dan elemen berikutnya */
+        width: 100%; /* Mengatur lebar elemen menjadi 100% lebar kontennya */
+        text-align: left; /* Mengatur teks menjadi tengah */
+        position: relative; /* Mengatur posisi relatif untuk mengontrol posisi elemen */
+        left: 0; /* Mengatur posisi kiri ke 0 untuk memastikan elemen dimulai dari sisi kiri */
+        }
+
+        .container-title p {
+            font-size: 15px; /* Ukuran teks "Tambah Buku" */
+            margin: 0; /* Menghapus margin bawaan dari <h2> */
+        }
+        .barang-list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .barang-item {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<div class="content">
+    <% if (cariTransaksi && cariTransaksi.length > 0) { %>
+        <div class="container-title">
+            <p>Hasil Pencarian Transaksi</p>
+        </div>
+        <table class="buku-table" style="width:100%">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal Transaksi</th>
+                    <th>Kode Transaksi</th>
+                    <th>Pelanggan</th>
+                    <th>Judul Buku</th>
+                    <th>Qty</th>
+                    <th>Harga Jual</th>
+                    <th>Total Pembelian</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < cariTransaksi.length; i++) { %>
+                    <% const transaksi = cariTransaksi[i]; %>
+                    <!-- Loop through detail_transaksi for the current transaction -->
+                    <% const detailBarang = transaksi.detail_transaksi.split(';') %>
+                    <% for (let j = 0; j < detailBarang.length; j++) { %>
+                        <% const barangInfo = detailBarang[j].split(':') %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= new Date(transaksi.tgl_transaksi).toDateString() %></td>
+                            <td><%= transaksi.kode_transaksi %></td>
+                            <td><%= transaksi.namaPelanggan %></td>
+                            <td><%= barangInfo[1] %></td> <!-- Nama Barang -->
+                            <td><%= barangInfo[2] %></td> <!-- Jumlah Beli -->
+                            <td>Rp <%= barangInfo[4]?.toLocaleString() %></td> <!-- Harga Jual (use optional chaining) -->
+                            <td>Rp <%= (barangInfo[2] * barangInfo[4])?.toLocaleString() %></td> <!-- Total -->
+                        </tr>
+                    <% } %>
+                <% } %>
+            </tbody>
+        </table>
+    <% } else { %>
+            <script>
+                alert("Tidak ada transaksi yang cocok dengan pencarian Anda.");
+                // You can also redirect the user to another page or perform other actions as needed
+                window.location.href = "/riwayatTransaksi"; // Redirect to riwayatTransaksi page
+            </script>
+    <% } %>
+    <a href="/riwayatTransaksi" class="btn-group button">
+        Kembali ke Riwayat Transaksi
+    </a>
+</div>
+
+<%- include ('layout/footer') %>

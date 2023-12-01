@@ -1,0 +1,317 @@
+<%- include ('layout/header') %>
+<%- include ('layout/nav') %>
+<head>
+<style>
+        /* CSS untuk styling tabel data buku */
+        .buku-table {
+            width: 100%;
+            border: 1px solid rgb(0, 145, 241);
+            border-collapse: collapse;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+
+        .buku-table th{
+            border: 1px solid rgb(0, 145, 241);    
+            padding: 8px;
+            text-align: center;
+        }
+        .buku-table td {
+            border: 1px solid rgb(0, 153, 255);    
+            padding: 8px;
+            text-align: left;
+        }
+
+        .buku-table th {
+            background-color: rgb(0, 153, 255);
+            color: #fff;
+            /* Gaya untuk header kolom */
+        }
+        
+        .buku-table tr:hover{
+            background-color: rgb(110, 196, 253);
+            color: #fff;
+        }
+        
+        .form-table {
+            width: 70%;
+            border-collapse: collapse;
+            margin: 20px;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+        .form-table td {   
+            padding: 4px;
+            text-align: left;
+        }
+        .form-btn {
+            border-radius: 2px  ;
+            background-color: rgb(87, 187, 253);
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 15px;
+            padding: 5px;
+            width: 100px;   
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .form-btn:hover {
+            background-color: rgb(71, 170, 236);
+        }
+        .input-field {
+        width: 80%;
+        padding: 1px;
+        outline: none;
+        border: 1 solid rgb(212, 212, 212);
+        }
+
+        .input-field:focus {
+        border: 2px solid rgb(71, 170, 236);
+        }
+        .container-title {
+        background-color: #f2f2f2; /* Warna latar belakang */
+        padding: 1px; /* Ruang di sekitar teks */
+        margin-top: 1px; /* Jarak antara container dan elemen berikutnya */
+        width: 100%; /* Mengatur lebar elemen menjadi 100% lebar kontennya */
+        text-align: left; /* Mengatur teks menjadi tengah */
+        position: relative; /* Mengatur posisi relatif untuk mengontrol posisi elemen */
+        left: 0; /* Mengatur posisi kiri ke 0 untuk memastikan elemen dimulai dari sisi kiri */
+        }
+
+        .container-title p {
+            font-size: 15px; /* Ukuran teks "Tambah Buku" */
+            margin: 0; /* Menghapus margin bawaan dari <h2> */
+        }
+        .cari-btn {
+            border-radius: 2px  ;
+            background-color: rgb(167, 167, 167);
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 15px;
+            padding: 5px;
+            width: 5%;   
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .cari-btn:hover {
+            background-color: rgb(188, 212, 226);
+        }
+        .btn-delete {
+        background-color: #c50d00; /* Green background for delete */
+        }
+        .btn-delete:hover {
+        background-color: #f30000; /* Green background for delete */
+        }
+
+        .btn-tambah-stok {
+        background-color: #007710; /* Blue background for tambah stok */
+        }
+        .btn-tambah-stok:hover {
+        background-color: #009414 ; /* Blue background for tambah stok */
+        }
+
+        .btn-group button {
+        border: 1px; 
+        color: rgb(255, 255, 255); /* White text for all buttons */
+        padding: 3px 16px; /* Some padding for all buttons */
+        cursor: pointer; /* Pointer/hand icon for all buttons */
+        float: left; /* Float the buttons side by side */
+        margin-right: 10px; /* Add margin to create space between buttons */
+        }
+
+        /* Clear floats (clearfix hack) */
+        .btn-group:after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+
+        .btn-group button:last-child {
+        margin-right: 20px; /* Remove margin for the last button */
+        }
+                /* Modal styles */
+                .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 70%;
+        }
+
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+
+<div class="content">
+    <!-- Form Penambahan Data Buku -->
+    <div class="container-title">
+        <p>Tambah Buku</p>
+    </div>
+    <form action="/dataBuku/add" method="POST">
+        <table  class="form-table">  
+            <tr>
+                <td><label for="kodeBuku">Kode Buku</label></td>
+                <td><input  class="input-field" type="text" name="kodeBuku" required></td>
+                <td>Penerbit</td>
+                <td><input  class="input-field" type="text" name="penerbit" required></td>
+                
+            </tr>
+            <tr>
+                <td> <label for="judul">Judul</label></td>
+                <td><input class="input-field" type="text" name="judul" required></td>
+                <td>Tahun</td>
+                <td><input class="input-field" type="text" name="tahun" required></td>
+            </tr>
+            <tr>
+                <td>No. ISBN</td>
+                <td><input class="input-field" type="text" name="noISBN" required></td>
+                <td>Harga Pokok</td>
+                <td><input class="input-field" type="number" name="hargaPokok" required></td>
+            </tr>
+            <tr>
+                <td>Penulis</td>
+                <td><input class="input-field" type="text" name="penulis" required></td>
+                <td>Harga Jual</td>
+                <td><input class="input-field" type="number" name="hargaJual" required></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button  class="form-btn" type="submit" name="aksi" value="simpan" required>Simpan</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    
+    <br>
+        <!-- Form Pencarian -->
+        <form id="formCari" action="/dataBuku/cari" method="POST">
+            <input  class="input-field" type="text" name="kataKunci" placeholder="Masukkan kata kunci" required style="width: 20%;">
+            <button  class="cari-btn" type="submit"><i class="fa fa-search" style="color:white"></i></button>
+        </form>
+    <br>
+
+    <% if (updateSuccess) { %>
+        <div class="success-message">
+          Data buku berhasil diperbarui.
+        </div>
+      <% } %>
+
+     <!-- Tabel Buku -->
+    <% if (cont.length < 1) { %>
+        <p>Data keranjang kosong.</p>
+    <% } else { %>
+        <table class="buku-table" style="width:100%">
+            <tr>
+                <th>Kode Buku</th>
+                <th>Judul</th>
+                <th>No. ISBN</th>
+                <th>Penulis</th>
+                <th>Penerbit</th>
+                <th>Tahun</th>
+                <th>Stok</th>
+                <th>Harga Pokok</th>
+                <th>Harga Jual</th>
+                <th colspan="3">Aksi</th>
+            </tr>
+            <% cont.forEach(buku => { %>
+                <tr>
+                    <td><%= buku.kode_buku %></td>
+                    <td><%= buku.judul %></td>
+                    <td><%= buku.no_isbn %></td>
+                    <td><%= buku.penulis %></td>
+                    <td><%= buku.penerbit %></td>
+                    <td><%= buku.tahun %></td>
+                    <td><%= buku.stok %></td>
+                    <td><%= buku.hrg_pokok %></td>
+                    <td><%= buku.hrg_jual %></td>
+                    <td colspan="2">
+                        <center>
+                        <div class="btn-group">
+                        <form action="/dataBuku/delete/<%= buku.kode_buku %>" method="POST">
+                            <button class="btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus buku ini?')">Hapus</button>
+                        </form>
+                         <!-- Button to trigger the modal for adding stock -->
+                            <button class="btn-tambah-stok" onclick="openModal('<%= buku.kode_buku %>')">Tambah stok</button>
+
+                            <!-- Modal for adding stock -->
+                            <div id="addStockModal_<%= buku.kode_buku %>" class="modal">
+                                 <div class="modal-content">
+                                    <span class="close" onclick="closeModal('<%= buku.kode_buku %>')">&times;</span>
+                                    <!-- Form for adding stock -->
+                                    <form action="/dataBuku/tambahStok/<%= buku.kode_buku %>" method="POST">
+                                        <label for="jumlahMasuk">Jumlah Masuk</label>
+                                        <input class="input-field" type="number" name="jumlahMasuk" required>
+                                        <button class="form-btn" type="submit">Tambah Stok</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </center>
+                    </td>
+                </tr>
+                <!-- Tampilkan notifikasi jika ada -->
+                <% if (booksNearDepletion.length > 0) { %>
+                    <script>
+                        const bookAlert = "<%= booksNearDepletion.map(book => `Buku ${book.judul} dengan Kode Buku ${book.kode_buku} akan segera habis`).join('\\n') %>";
+                        alert(bookAlert);
+                    </script>
+                <% } %>
+            <% }); %>
+        </table>
+    <% } %>
+</div>
+
+
+
+
+<!-- JavaScript code to handle modal functionality -->
+<script>
+    function openModal(bookId) {
+        $("#addStockModal_" + bookId).show();
+    }
+
+    function closeModal(bookId) {
+        $("#addStockModal_" + bookId).hide();
+    }
+
+    // Close the modal when clicking outside the modal
+    $(".modal").click(function () {
+        $(".modal").hide();
+    });
+
+    // Prevent modal from closing when clicking inside the modal
+    $(".modal-content").click(function (event) {
+        event.stopPropagation();
+    });
+</script>
+<%- include ('layout/footer') %>
+
+

@@ -1,0 +1,451 @@
+<%- include ('layout/header') %>
+<%- include ('layout/navKasir') %>
+<head>
+    <style>
+        .container-title {
+        background-color: #f2f2f2; /* Warna latar belakang */
+        padding: 1px; /* Ruang di sekitar teks */
+        margin-top: 1px; /* Jarak antara container dan elemen berikutnya */
+        width: 100%; /* Mengatur lebar elemen menjadi 100% lebar kontennya */
+        text-align: left; /* Mengatur teks menjadi tengah */
+        position: relative; /* Mengatur posisi relatif untuk mengontrol posisi elemen */
+        left: 0; /* Mengatur posisi kiri ke 0 untuk memastikan elemen dimulai dari sisi kiri */
+        }
+
+        .container-title p {
+            font-size: 20px; /* Ukuran teks "Tambah Buku" */
+            margin: 0; /* Menghapus margin bawaan dari <h2> */
+        }
+        .form-table2 {
+          width: 45%;
+          border-collapse: collapse;
+          margin: 3px;
+        }
+        .form-table2 td {   
+          padding: 4px;
+          text-align: left;
+        }
+        .form-table2 th {
+           
+          text-align: left;
+        }
+        .form-table {
+          width: 70%;
+          border-collapse: collapse;
+          margin: 2px;
+        }
+        .form-table td {   
+            padding: 5px;
+        }
+        .form-table th { 
+          text-align: center;
+        }
+        .highlight1 {
+          color: rgb(29, 95, 136);/* Warna teks untuk kontras yang baik */
+        }
+        .highlight2 {
+          color: rgb(141, 140, 140);/* Warna teks untuk kontras yang baik */
+        }
+        .form-btn {
+          border: none;
+          background: none; /* Menghapus latar belakang */
+          padding: 0; /* Menghapus padding */
+          cursor: pointer;
+          margin: 2px;
+        }
+
+        .form-btn:hover {
+            background-color: none;
+        }
+        .icon {
+        font-size: 42px; /* Sesuaikan ukuran ikon sesuai kebutuhan Anda */
+        color: #ff6600;
+        }
+
+        /* Gaya hover untuk ikon */
+        .icon:hover {
+            color: #ffd900; /* Warna ikon saat dihover */
+            /* Anda juga dapat menambahkan efek transisi untuk efek hover yang halus */
+            transition: color 0.3s ease;
+        }
+        .input-field {
+        width: 100%;
+        padding: 1px;
+        outline: none;
+        border: 1 solid rgb(212, 212, 212);
+        margin-right: 2px;
+        }
+
+        .input-field:focus {
+        border: 2px solid rgb(71, 170, 236);
+        }
+        .input-field-date {
+        width: 40%;
+        padding: 1px;
+        outline: none;
+        border: 1 solid rgb(212, 212, 212);
+        margin-right: 2px;
+        }
+
+        .input-field-date:focus {
+        border: 2px solid rgb(71, 170, 236);
+        }
+        /* CSS untuk styling tabel data buku */
+        .keranjang-table {
+            width: 100%;
+            border: 1px solid rgb(0, 153, 255);
+            border-collapse: collapse;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+        .keranjang-table td {
+            border: 1px solid rgb(0, 153, 255);    
+            padding: 8px;
+            text-align: left;
+        }
+
+        .keranjang-table th {
+            background-color:rgb(0, 145, 241);
+            border: 1px solid rgb(0, 153, 255);    
+            padding: 8px;
+            color: #fff;
+            text-align: center;
+            /* Gaya untuk header kolom */
+        }
+
+        .keranjang-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+            /* Gaya untuk baris genap */
+        }
+
+        .keranjang-table tr:nth-child(odd) {
+            background-color: #ffffff;
+            /* Gaya untuk baris ganjil */
+        }
+        .input-container {
+        display: block;
+        width: 100%;
+        }
+
+       .input-container input {
+        width: 50%;
+        margin-right: 1%;
+        }
+        /* Mengatur label dan input di kolom "Judul," "Stok," dan "Harga Pokok" */
+          .column-label {
+          font-weight: bold;
+        }
+        .column-input {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .column-input input {
+            flex: 1;
+            margin-right: 5px; /* Tambahkan jarak antara input */
+        }
+        /* Gaya untuk container total */
+        .div.total-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 10px;
+        }
+        /* Gaya untuk judul "Total Harga Pembelian" */
+        h2.total-harga {
+            font-size: 30px;
+            margin-left: 800px; /* Atur jarak antara judul dan garis */
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        /* Gaya untuk garis pemisah */
+        hr.separator {
+            border: 1px solid #333;
+            margin-top: 1px;
+            width: 23%;
+            flex-grow: 1; /* Agar garis pemisah mengisi sisa ruang secara otomatis */
+            margin-left: 800px;
+        }
+        p.total-beli{
+          font-size: 16px;
+          margin-left: 900px; /* Atur jarak antara judul dan garis */
+        }
+        /* Gaya untuk total pembelian */
+        .total-pembelian {
+            width: 24%;
+            border-collapse: collapse;
+            margin: 30px;
+            margin-top: 80px; /* Sesuaikan jarak dengan tabel keranjang */
+            float: right; /* Posisikan di sebelah kanan */
+            text-align: left; /* Aligment ke kanan */
+        }
+
+        .total-pembelian-table {
+            border-collapse: collapse;
+        }
+
+        .total-pembelian-td {
+            padding: 2px;
+            border-bottom: 1px solid #ccc; /* Garis pemisah antar baris */
+        }
+
+        .total-pembelian-input[type="text"],
+        .total-pembelian-input[type="number"] {
+            width: 100%;
+        }
+        .btn-total {
+            border-radius: 2px  ;
+            background-color:  #007710;
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 15px;
+            padding: 5px;
+            width: 150px;   
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .btn-total:hover {
+            background-color: #009414;
+        }
+    </style>
+</head>
+
+            <div class="content">
+              <div class="container-title">
+                <p>Penjualan</p>
+              </div>
+                <!-- Form Penambahan Data Buku -->
+                
+                <div class="total-container">
+                  <h2 class="total-harga">Rp. <%= total %></h2>
+                  <hr class="separator">
+                  <p class="total-beli highlight2">Total Pembelian Rp.<span id="totalPembelianText"><%= total %></span></p>
+              </div>
+                <form action="" method="POST">
+                    <table  class="form-table2">
+                        <tr>
+                            <th>Kode Penjualan </th>
+                            <th class="highlight2"><%= kodeTransaksi %></th>
+                        </tr>
+                        <tr>
+                            <th>Tanggal Penjualan</th>
+                            <th><p id="tglJual" style="color: rgb(141, 140, 140);"></p>  </th>
+                        </tr>
+                    <table>
+                </form><br>
+
+                <form action="/transaksi/add" method="POST">    
+                <table  class="form-table">
+                    <tr>
+                        <th>Nama Pelanggan</th>
+                        <th>Kode Buku</th>
+                        <th  class="highlight1">Judul Stok</th>
+                        <th class="highlight1">Harga Jual</th>
+                        <th>Jumlah Beli</th>
+                    </tr>
+                    <tr>
+                        <td>
+                          <input class="input-field" type="text" name="namaPelanggan" required>
+                      </td>
+                        <td>
+                          <input class="input-field" type="text" name="kodeBuku" id="kodeBukuInput" required oninput="getBookInfo()">
+                        </td>
+                        <td>
+                          <input class="input-field" type="text" name="judulStokHarga" id="judulStokHargaInput" readonly>
+                        </td>
+                        
+                        <td>
+                            <input class="input-field" type="text" name="hargaJual" id="hargaJualInput" readonly>
+                        </td>
+                        <td>
+                            <input class="input-field" type="number" name="jmlBeli" required oninput="handleJmlBeliInput()">
+                        </td>
+                    </tr>
+                </table>
+            </tr>
+            <tr>
+                <td colspan="2">
+                  <button class="form-btn" type="submit" name="simpanKeranjang" value="simpan" required>
+                    <span class="icon fa fa-cart-arrow-down custom-icon"></span> <!-- Masukkan ikon di dalam tombol -->
+                </button>
+                </td>
+            </tr>
+        </table><br>
+    </form>
+    
+
+    
+     <!-- Tabel Keranjang -->
+        <table class="keranjang-table" style="width:100%">
+            <tr>
+                <th>Kode Buku</th>
+                <th>Judul Buku</th>
+                <th>Harga</th>
+                <th>QTY</th>
+                <th>Total</th>
+            </tr>
+            <% for (const item of keranjang) { %>
+              <tr>
+                <td><%= item.kodeBuku %></td>
+                <td><%= item.judul %></td>
+                <td><%= item.hargaJual %></td>
+                <td><%= item.jumlahBeli %></td>
+                <td><%= item.subTotal %></td>
+              </tr>
+            <% } %>
+        </table>
+
+        <form action="/transaksi/bayar" method="POST">
+          <table class="total-pembelian">
+            <!-- Kolom Total Pembelian -->
+            <tr>
+              <td>Total Pembelian</td>
+              <td><input class="input-field" type="text" name="totalPembelian" id="totalPembelian" value="<%= total %>" readonly></td>
+            </tr>
+        
+            <!-- Kolom Jumlah Pembayaran -->
+            <tr>
+              <td>Jumlah Pembayaran</td>
+              <td><input class="input-field" type="number" name="jumlahPembayaran" id="jumlahPembayaran" required></td>
+            </tr>
+        
+            <!-- Kolom Kembalian -->
+            <tr>
+              <td>Kembalian</td>
+              <td><input class="input-field" type="text" name="kembalian" id="kembalian" readonly></td>
+            </tr>
+            
+            <tr>
+              <td colspan="2">
+                <form action="/transaksi/simpan" method="POST">
+                  <input type="hidden" name="dataTransaksi" >
+                  <button class="btn-total" type="submit">Simpan Transaksi</button>
+                </form>
+                <form action="/reset-keranjang" method="POST">
+                  <input type="hidden" name="resetKeranjang" >
+                  <button class="btn-total" type="submit">Batal</button>
+                </form>
+              </td>
+            </tr>
+          </table>
+        </form>
+</div>
+
+<!-- Form Pembayaran -->
+
+<%- include ('layout/footer') %>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tglJualElement = document.getElementById('tglJual');
+    const today = new Date().toISOString().split('T')[0];
+    tglJualElement.textContent = today;
+
+    // Menambahkan event listener ke input jumlah beli
+    const jmlBeliInput = document.getElementsByName('jmlBeli')[0];
+    jmlBeliInput.addEventListener('change', () => {
+        getBookInfo();
+        handleJmlBeliInput();
+    });
+
+    // Menambahkan event listener ke input kode buku
+    const kodeBukuInput = document.getElementById('kodeBukuInput');
+    kodeBukuInput.addEventListener('change', async () => {
+        const kodeBuku = kodeBukuInput.value.trim();
+
+        // Periksa apakah kodeBuku tidak kosong sebelum melakukan pemeriksaan lebih lanjut
+        if (kodeBuku !== '') {
+            const result = await tambahTransaksi('kodeTransaksi', kodeBuku, 1, 'namaPelanggan');
+
+            // Tampilkan alert hanya jika buku tidak ditemukan
+            if (!result) {
+                alert(`Buku dengan kode ${kodeBuku} tidak ditemukan.`);
+                kodeBukuInput.focus();
+            }
+        }
+    });
+});
+
+  async function getBookInfo() {
+      const kodeBukuInput = document.getElementById('kodeBukuInput');
+      const judulStokHargaInput = document.getElementById('judulStokHargaInput');
+      const hargaJualInput = document.getElementById('hargaJualInput');
+
+      const kodeBuku = kodeBukuInput.value.trim();
+
+      try {
+          const response = await fetch(`/getBookInfo/${kodeBuku}`);
+          const data = await response.json();
+
+          if (data.error) {
+              judulStokHargaInput.value = '';
+              hargaJualInput.value = '';
+              alert(data.error);
+          } else {
+              const judulStokHarga = `${data.judul} ; ${data.stok}`;
+              judulStokHargaInput.value = judulStokHarga;
+              hargaJualInput.value = data.hrg_jual;
+
+              // Assuming stokBuku is part of the data returned from the server
+              const stokBuku = data.stok;
+
+              // Call handleJmlBeliInput with stokBuku
+              handleJmlBeliInput(stokBuku);
+          }
+      } catch (error) {
+          console.error('Error:', error);
+      }
+  }
+
+  function handleJmlBeliInput(stokBuku) {
+      const jmlBeliInput = document.getElementsByName('jmlBeli')[0];
+      const jmlBeli = parseInt(jmlBeliInput.value);
+
+      // Memeriksa apakah jumlah beli adalah angka yang valid dan apakah input tidak kosong
+      if (!isNaN(jmlBeli) && jmlBeli > 0) {
+          if (jmlBeli > stokBuku) {
+              console.log(`Jumlah buku yang dibeli melebihi stok buku: ${jmlBeli} > ${stokBuku}`);
+              // Handle the case where jumlahBeli exceeds stokBuku
+              alert('Jumlah buku yang dibeli melebihi stok buku.');
+              jmlBeliInput.value = ''; // Kosongkan nilai input jika tidak valid
+          } else {
+              console.log(`Jumlah buku yang dibeli valid: ${jmlBeli}`);
+              // Do something with the valid jmlBeli value, if needed
+          }
+      } else {
+          alert('Jumlah beli tidak valid. Harap masukkan angka yang lebih besar dari 0.');
+          jmlBeliInput.value = ''; // Kosongkan nilai input jika tidak valid
+      }
+  }
+
+  // Fungsi untuk menghitung dan menampilkan kembalian
+  function hitungKembalian() {
+      const totalPembelianInput = document.getElementById('totalPembelian');
+      const jumlahPembayaranInput = document.getElementById('jumlahPembayaran');
+      const kembalianInput = document.getElementById('kembalian');
+
+      const totalPembelian = parseFloat(totalPembelianInput.value);
+      const jumlahPembayaran = parseFloat(jumlahPembayaranInput.value);
+
+      if (!isNaN(totalPembelian) && !isNaN(jumlahPembayaran)) {
+          const kembalian = jumlahPembayaran - totalPembelian;
+          kembalianInput.value = kembalian.toFixed(2);
+      } else {
+          kembalianInput.value = '';
+      }
+  }
+
+  // Menambahkan event listener ke input jumlah pembayaran
+  const jumlahPembayaranInput = document.getElementById('jumlahPembayaran');
+  jumlahPembayaranInput.addEventListener('blur', hitungKembalian);
+
+</script>
+
+
+
+
+
+
+

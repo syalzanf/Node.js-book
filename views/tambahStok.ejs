@@ -1,0 +1,48 @@
+<%- include ('layout/header') %>
+<%- include ('layout/nav') %>
+<head>
+    <style>
+            .input-field {
+            width: 17%;
+            padding: 1px;
+            outline: none;
+            border: 1 solid rgb(212, 212, 212);
+            }
+
+            .input-field:focus {
+            border: 2px solid rgb(71, 170, 236);
+            }
+            .btn {
+            border-radius: 2px  ;
+            background-color: rgb(87, 187, 253);
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 15px;
+            padding: 5px;
+            width: 150px;   
+            cursor: pointer;
+            margin: 2px;
+            }
+
+            .btn:hover {
+                background-color: rgb(71, 170, 236);
+            }
+    </style>
+</head>
+
+<div class="content">
+    <h2>Tambah Stok Buku</h2>
+    <form action="/dataBuku/tambahStok/<%= kodeBuku %>" method="POST">
+        <% if (kodeBuku) { %>
+            <input type="hidden" name="kodeBukuStok" value="<%= kodeBuku %>">
+          <% } %>
+        <label for="jumlahMasuk">Jumlah Masuk </label>
+        <input  class="input-field" type="number" name="jumlahMasuk" required>
+        <button class="btn" type="submit">Tambah Stok</button>
+    </form>
+</div>
+
+<%- include ('layout/footer') %>
+
+

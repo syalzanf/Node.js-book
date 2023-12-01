@@ -1,0 +1,73 @@
+<%- include ('layout/header') %>
+<%- include ('layout/navKasir') %>
+<head>
+<style>
+        /* CSS untuk styling tabel data buku */
+        .buku-table {
+            width: 100%;
+            border: 1px solid rgb(0, 145, 241);
+            border-collapse: collapse;
+            /* Tambahkan gaya lain sesuai kebutuhan Anda */
+        }
+
+        .buku-table th{
+            border: 1px solid rgb(0, 145, 241);    
+            padding: 8px;
+            text-align: center;
+        }
+        .buku-table td {
+            border: 1px solid rgb(0, 153, 255);    
+            padding: 8px;
+            text-align: left;
+        }
+
+        .buku-table th {
+            background-color: rgb(0, 153, 255);
+            color: #fff;
+            /* Gaya untuk header kolom */
+        }
+        
+        .buku-table tr:hover{
+            background-color: rgb(110, 196, 253);
+            color: #fff;
+        }
+    </style>
+</head>
+
+
+<div class="content">
+     <!-- Tabel Buku -->
+    <% if (cont.length < 1) { %>
+        <p>Data keranjang kosong.</p>
+    <% } else { %>
+        <table class="buku-table" style="width:100%">
+            <tr>
+                <th>Kode Buku</th>
+                <th>Judul</th>
+                <th>No. ISBN</th>
+                <th>Penulis</th>
+                <th>Penerbit</th>
+                <th>Tahun</th>
+                <th>Stok</th>
+                <th>Harga Pokok</th>
+                <th>Harga Jual</th>
+            </tr>
+            <% cont.forEach(buku => { %>
+                <tr>
+                    <td><%= buku.kode_buku %></td>
+                    <td><%= buku.judul %></td>
+                    <td><%= buku.no_isbn %></td>
+                    <td><%= buku.penulis %></td>
+                    <td><%= buku.penerbit %></td>
+                    <td><%= buku.tahun %></td>
+                    <td><%= buku.stok %></td>
+                    <td><%= buku.hrg_pokok %></td>
+                    <td><%= buku.hrg_jual %></td>
+                </tr>
+            <% }); %>
+        </table>
+    <% } %>
+</div>
+<%- include ('layout/footer') %>
+
+
