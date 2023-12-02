@@ -122,74 +122,65 @@ async function sendPasswordResetEmail(email) {
 }
 
 // Fungsi untuk memeriksa validitas token reset
-async function resetPassword(token) {
+// Fungsi untuk memeriksa validitas token reset dan mengupdate password admin
+async function resetPassword(token, newPassword) {
   try {
-    const query = 'SELECT * FROM admin_reset_tokens WHERE token = ?';
-    const [result] = await runQuery(query, [token]);
 
-    if (!result || result.length === 0) {
-      return { isValid: false, email: null };
+
+    // Memeriksa validitas token
+    const querySelect = 'SELECT * FROM admin_reset_tokens WHERE token = ?';
+    console.log('Mencari token dengan query:', querySelect);
+    const [resultSelect] = await runQuery(querySelect, [token]);
+    // console.log('Hasil query:', {
+    //   id: resultSelect.id,
+    //   email: resultSelect.email,
+    //   token: resultSelect.token,
+    //   expiration_time: resultSelect.expiration_time.toISOString(),
+    // });
+
+    if (!resultSelect || Object.keys(resultSelect).length === 0) {
+      console.log('Token tidak ditemukan atau tidak valid.');
+      return { isValid: false, email: null, message: 'Token tidak valid' };
     }
 
-    const email = result[0]?.email;
-    return { isValid: true, email };
-  } catch (error) {
-    console.error('Error memeriksa validitas token reset:', error);
-    throw error;
-  }
-}
+     // Ambil email dari hasil query
+     const email = resultSelect.email;
 
-// Fungsi untuk memperbarui password pengguna di database
-async function updateUserPassword(email, newPassword) {
-  try {
-    // Logging untuk memeriksa nilai email dan password baru
-    console.log('Email:', email);
-    console.log('Password Baru:', newPassword);
+     console.log('Email yang diambil dari hasil query:', email);
 
-    // Memperbarui password di database
-    const updateQuery = 'UPDATE admin SET password = ? WHERE email = ?';
-    // Logging hasil update
-    console.log('Actual SQL Query Executed:', updateQuery); // <-- Ubah disini
-    
-    const updateResult = await runQuery(updateQuery, [newPassword, email]);
-    console.log('Hasil Update:', updateResult);
 
-    // Periksa apakah pembaruan berhasil
-    if (updateResult.affectedRows === 0) {
-      throw new Error('Gagal memperbarui password.');
+     if (email === null || email === undefined) {
+      console.log('Email tidak ditemukan atau tidak valid dalam hasil query.');
+      return { isValid: false, email: null, message: 'Email tidak valid' };
     }
 
-    // Hapus token reset dari database setelah password diperbarui
-    await removeResetToken(email);
+    // Mengupdate password admin
+    console.log('Mengupdate password dengan query:', 'UPDATE admin SET password = ? WHERE email = ?');
+    const queryUpdate = 'UPDATE admin SET password = ? WHERE email = ?';
+    const resultUpdate = await runQuery(queryUpdate, [newPassword, email]);
+    console.log('Hasil update password:', resultUpdate);
 
-    // Kembalikan true jika password berhasil diperbarui
-    return true;
-  } catch (error) {
-    console.error('Error memperbarui password pengguna:', error);
-    throw error;
+    if (resultUpdate && resultUpdate.affectedRows !== undefined && resultUpdate.affectedRows === 1) {
+
+    // Opsional: Menghapus token reset setelah digunakan
+    const queryDelete = 'DELETE FROM admin_reset_tokens WHERE token = ?';
+    await runQuery(queryDelete, [token]);
+
+    console.log('Password berhasil diupdate.');
+
+
+    return { isValid: true, email, message: 'Password berhasil diupdate' };
+  } else {
+    console.log('Gagal mengupdate password.');
+    return { isValid: false, email, message: 'Gagal mengupdate password' };
   }
+} catch (error) {
+  console.error('Error memeriksa validitas token reset dan mengupdate password:', error);
+  console.error('Error stack trace:', error.stack);
+  throw error;
+}
 }
 
-
-// Fungsi untuk menghapus token reset berdasarkan email pengguna
-async function removeResetToken(email) {
-  try {
-        // Kueri SQL untuk menghapus token dari tabel admin_reset_tokens
-        const query = 'DELETE FROM admin_reset_tokens WHERE email = ?';
-
-    // Jalankan kueri dengan email yang diberikan
-    const result = await runQuery(query, [email]);
-
-    if (result.affectedRows === 0) {
-      console.warn('Token reset tidak ditemukan atau sudah dihapus untuk email:', email);
-    } else {
-      console.log('Token reset berhasil dihapus dari database untuk email:', email);
-    }
-  } catch (error) {
-    console.error('Error menghapus token reset:', error);
-    throw error;
-  }
-}
 
 
 // Fungsi untuk menjalankan query ke database
@@ -823,9 +814,9 @@ module.exports = {
   loginAdmin,
   sendPasswordResetEmail,
   generateResetToken,
-  removeResetToken,
+  // removeResetToken,
   resetPassword,
-  updateUserPassword,
+  // updateUserPassword,
   saveResetToken,
   isValidResetToken,
   verifyAdminEmail,

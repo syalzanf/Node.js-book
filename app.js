@@ -96,72 +96,41 @@ app.get('/reset-password/:token', async (req, res) => {
   const token = req.params.token;
 
   try {
-    // Periksa apakah token ada di database
+    // Periksa apakah token ada di database dan dapatkan email
     const { isValid, email } = await admin.resetPassword(token);
 
-    if (!isValid) {
-      // Token tidak ditemukan atau sudah digunakan
-      return res.send('Invalid or expired reset token.');
-    }
+    console.log('Token:', token);
+    console.log('IsValid:', isValid);
+    console.log('Email:', email);
 
-    // Render halaman reset password dengan token dan email
-    res.render('resetPassword-admin', { title: 'Reset Password', token: token, email: email });
+    if (isValid) {
+      // Render halaman reset password dengan token dan email
+      res.render('resetPassword-admin', { title: 'Reset Password', token: token, email: email });
+    } else {
+      res.send('Token tidak valid.');
+    }
   } catch (error) {
     console.error('Error saat menampilkan halaman reset password:', error);
     res.send('Terjadi kesalahan saat memeriksa token reset password.');
   }
 });
 
-// Proses reset password
-app.post('/resetPassword/:token', async (req, res) => {
-  const token = req.params.token;
-  const newPassword = req.body.newPassword;
-  const email = req.body.email;
+// Rute untuk meng-handle permintaan reset password
+app.post('/reset-password/:token', async (req, res) => {
+  const { token, email, newPassword } = req.body;
 
   try {
-    // Periksa apakah token ada di database
-    const { isValid, email } = await admin.resetPassword(token);
+    // Memeriksa validitas token dan mengupdate password
+    const { isValid, message } = await admin.resetPassword(token, newPassword);
 
-    if (!isValid) {
-      // Token tidak ditemukan atau sudah digunakan
-      console.log('Token tidak valid atau sudah digunakan.');
-      return res.send('Invalid or expired reset token.');
-    }
-
-    // Update password pengguna di database
-    const updateResult = await admin.updateUserPassword(email, newPassword);
-
-    if (updateResult.affectedRows === 0) {
-      throw new Error('Gagal memperbarui password.');
-    }
-
-    // Hapus token reset dari database
-    await admin.removeResetToken(token);
-
-    res.render('password-reset-success', { title: 'Reset Password' });
-  } catch (error) {
-    console.error('Error saat mereset password:', error);
-    res.send('Terjadi kesalahan saat mereset password.');
-  }
-});
-
-// Rute untuk verifikasi email admin
-app.get('/verify-email', async (req, res) => {
-  const emailToVerify = 'nfsyalza@gmail.com';
-  
-  try {
-    const isEmailValid = await admin.verifyAdminEmail(emailToVerify);
-    console.log('Is Email Valid:', isEmailValid);
-    
-    // Lakukan tindakan berdasarkan hasil verifikasi email
-    if (isEmailValid) {
-      res.send('Email valid!');
+    if (isValid) {
+      res.send('Password berhasil diupdate.');
     } else {
-      res.send('Email tidak valid!');
+      res.send(`Gagal mengupdate password. ${message}`);
     }
   } catch (error) {
-    console.error('Terjadi kesalahan:', error);
-    res.status(500).send('Terjadi kesalahan.');
+    console.error('Error saat mengupdate password baru:', error);
+    res.send('Terjadi kesalahan saat mengupdate password baru.');
   }
 });
 
