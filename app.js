@@ -99,10 +99,6 @@ app.get('/reset-password/:token', async (req, res) => {
     // Periksa apakah token ada di database dan dapatkan email
     const { isValid, email } = await admin.resetPassword(token);
 
-    console.log('Token:', token);
-    console.log('IsValid:', isValid);
-    console.log('Email:', email);
-
     if (isValid) {
       // Render halaman reset password dengan token dan email
       res.render('resetPassword-admin', { title: 'Reset Password', token: token, email: email });
@@ -118,10 +114,16 @@ app.get('/reset-password/:token', async (req, res) => {
 // Rute untuk meng-handle permintaan reset password
 app.post('/reset-password/:token', async (req, res) => {
   const { token, email, newPassword } = req.body;
+  console.log('Token yang diterima:', token);
+  console.log('Data formulir:', req.body);
+
+  console.log('Isi req.body:', req.body);
+
 
   try {
+
     // Memeriksa validitas token dan mengupdate password
-    const { isValid, message } = await admin.resetPassword(token, newPassword);
+    const { isValid, message } = await admin.resetPassword(token, email, newPassword);
 
     if (isValid) {
       res.send('Password berhasil diupdate.');
@@ -195,7 +197,6 @@ app.get('/', (req, res) => {
   res.render('login', { nama: 'syalza', title: 'Halaman Login', error: errorMessage });
 });
 
-
 // Rute untuk penanganan login
 app.post('/login', async (req, res) => {
   const { role, username, password } = req.body;
@@ -204,83 +205,64 @@ app.post('/login', async (req, res) => {
   console.log('Username:', username);
   console.log('Password:', password);
 
-  // Lakukan verifikasi login menggunakan fungsi loginAdmin dan loginKasir
-  if (role === 'admin') {
-      const isAdmin = await admin.loginAdmin(username, password);
-      if (isAdmin) {
-          // Setel sesi login sebagai admin jika login berhasil
-          req.session.isLoggedIn = true;
-          req.session.isAdmin = true;
-          req.session.username = username;
-          res.redirect('/home');
-          return;
-      }
-  } else if (role === 'kasir') {
-      const isKasir = await kasir.loginKasir(username, password);
-      if (isKasir) {
-          // Setel sesi login sebagai kasir jika login berhasil
-          req.session.isLoggedIn = true;
-          req.session.isAdmin = false;
-          req.session.username = username;
-          res.redirect('/transaksi');
-          return;
-      }else {
-        // Menampilkan alert jika login gagal
-        console.log("Username atau Password Salah")
-        const errorMessage = 'Username atau password salah. Coba Lagi!';
-        res.render('login', { error: errorMessage });
-        }
-    }
-  // Redirect kembali ke halaman login jika login gagal
-  res.redirect('/');
+//   // Lakukan verifikasi login menggunakan fungsi loginAdmin dan loginKasir
+//   if (role === 'admin') {
+//       const isAdmin = await admin.loginAdmin(username, password);
+//       if (isAdmin) {
+//           // Setel sesi login sebagai admin jika login berhasil
+//           req.session.isLoggedIn = true;
+//           req.session.isAdmin = true;
+//           req.session.username = username;
+//           res.redirect('/home');
+//           return;
+//       }
+//   } else if (role === 'kasir') {
+//       const isKasir = await kasir.loginKasir(username, password);
+//       if (isKasir) {
+//           // Setel sesi login sebagai kasir jika login berhasil
+//           req.session.isLoggedIn = true;
+//           req.session.isAdmin = false;
+//           req.session.username = username;
+//           res.redirect('/transaksi');
+//           return;
+//       }else {
+//         // // Menampilkan alert jika login gagal
+//         // console.log("Username atau Password Salah")
+//         // const errorMessage = 'Username atau password salah. Coba Lagi!';
+//         // res.render('login', { error: errorMessage });
+//         }
+//     }
+//   // Redirect kembali ke halaman login jika login gagal
+//   res.redirect('/');
+// });
+let loginSuccess = false;
+
+if (role === 'admin') {
+  const isAdmin = await admin.loginAdmin(username, password);
+  loginSuccess = isAdmin;
+} else if (role === 'kasir') {
+  const isKasir = await kasir.loginKasir(username, password);
+  loginSuccess = isKasir;
+}
+
+// Mengirim respons berdasarkan hasil verifikasi login
+if (loginSuccess) {
+  // Setel sesi login sesuai dengan role jika login berhasil
+  req.session.isLoggedIn = true;
+  req.session.isAdmin = role === 'admin';
+  req.session.username = username;
+  res.json({ success: true });
+} else {
+  // Mengirim respons bahwa login gagal
+  res.json({ success: false });
+}
 });
-
-
-
-
-
-
 
 // Rute untuk halaman konfirmasi
 app.get('/confirmation', (req, res) => {
   const confirmationMessage = 'Password reset successfully. You can now login with your new password.';
   res.render('confirmation', { message: confirmationMessage });
 });
-
-
-
-// // Rute untuk lupa kata sandi kasir
-// app.get('/forgot-password', async (req, res) => {
-//   const message = "Masukkan Username Kasir";
-//   // Render halaman untuk lupa kata sandi kasir
-//   res.render('forgotPassword-kasir', { message });
-// });
-
-// // Rute untuk penanganan lupa kata sandi Admin
-// app.post('/forgot-password', async (req, res) => {
-//   const { username } = req.body;
-//   console.log('Received username from form:', username);
-
-//   try {
-//       const kasirData = await kasir.findKasirByUsername(username);
-//       console.log('Kasir Data:', kasirData);
-//       console.log('Admin Email:', adminEmail);
-
-//       if (kasirData) {
-//           // Kirim notifikasi ke admin bahwa kasir meminta reset password
-//           kasir.sendResetNotificationToAdmin(username, adminEmail);
-
-//           res.send('Password reset process initiated. Check your email for further instructions.');
-//       } else {
-//           res.status(404).send('Kasir not found.');
-//       }
-//   } catch (error) {
-//       console.error('Error initiating password reset:', error);
-//       res.status(500).send('Internal Server Error');
-//   }
-// });
-
-
 
 // Halaman utama untuk admin
 app.get('/home', admin.checkRole('admin'), admin.checkLoggedIn, (req, res) => {
@@ -292,7 +274,6 @@ app.get('/home', admin.checkRole('admin'), admin.checkLoggedIn, (req, res) => {
       res.redirect('/');
   }
 });
-
 
 // Rute untuk menampilkan semua data buku
 app.get('/dataBuku', admin.checkLoggedIn, async (req, res) => {
@@ -313,8 +294,6 @@ app.get('/dataBuku', admin.checkLoggedIn, async (req, res) => {
       res.status(500).send('Terjadi kesalahan dalam memuat data buku.');
   }
 });
-
-
 
 // Route untuk menambah data buku
 app.post('/dataBuku/add', async (req, res) => {

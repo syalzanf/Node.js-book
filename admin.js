@@ -125,12 +125,12 @@ async function sendPasswordResetEmail(email) {
 // Fungsi untuk memeriksa validitas token reset dan mengupdate password admin
 async function resetPassword(token, newPassword) {
   try {
-
-
+ 
     // Memeriksa validitas token
     const querySelect = 'SELECT * FROM admin_reset_tokens WHERE token = ?';
     console.log('Mencari token dengan query:', querySelect);
     const [resultSelect] = await runQuery(querySelect, [token]);
+    console.log('Hasil pencarian token:', resultSelect);
     // console.log('Hasil query:', {
     //   id: resultSelect.id,
     //   email: resultSelect.email,
@@ -147,6 +147,7 @@ async function resetPassword(token, newPassword) {
      const email = resultSelect.email;
 
      console.log('Email yang diambil dari hasil query:', email);
+     console.log('Nilai newPassword sebelum update:', newPassword);
 
 
      if (email === null || email === undefined) {
@@ -154,6 +155,7 @@ async function resetPassword(token, newPassword) {
       return { isValid: false, email: null, message: 'Email tidak valid' };
     }
 
+    console.log(newPassword)
     // Mengupdate password admin
     console.log('Mengupdate password dengan query:', 'UPDATE admin SET password = ? WHERE email = ?');
     const queryUpdate = 'UPDATE admin SET password = ? WHERE email = ?';
@@ -162,9 +164,9 @@ async function resetPassword(token, newPassword) {
 
     if (resultUpdate && resultUpdate.affectedRows !== undefined && resultUpdate.affectedRows === 1) {
 
-    // Opsional: Menghapus token reset setelah digunakan
-    const queryDelete = 'DELETE FROM admin_reset_tokens WHERE token = ?';
-    await runQuery(queryDelete, [token]);
+    // // Opsional: Menghapus token reset setelah digunakan
+    // const queryDelete = 'DELETE FROM admin_reset_tokens WHERE token = ?';
+    // await runQuery(queryDelete, [token]);
 
     console.log('Password berhasil diupdate.');
 
@@ -177,7 +179,7 @@ async function resetPassword(token, newPassword) {
 } catch (error) {
   console.error('Error memeriksa validitas token reset dan mengupdate password:', error);
   console.error('Error stack trace:', error.stack);
-  throw error;
+  throw error;  
 }
 }
 
@@ -219,68 +221,6 @@ async function updateKasirPassword(username, newPassword) {
     throw error;
   }
 }
-
-// async function resetPassword(token, newPassword) {
-//   console.log('Fungsi Reset Password - Menerima Token:', token);
-//   try {
-//     // Mendapatkan email yang terkait dengan token reset
-//     const query = 'SELECT * FROM admin_reset_tokens WHERE token = ?';
-//     const [result] = await runQuery(query, [token]);
-
-//     // Periksa apakah ada hasil dan email tidak undefined
-//     if (!result || result.length === 0 || !result[0]?.email || !result[0]?.expiration_time) {
-//       throw new Error('Token reset tidak valid atau sudah kedaluwarsa.');
-//     }
-
-//     const email = result[0]?.email;
-//     const expirationTime = moment(result[0]?.expiration_time).utc();
-
-//     console.log('Token Expiration Time (Saved):', expirationTime.format());
-//     console.log('Current Time (Validation):', moment().format());
-//     console.log('Is Token Valid (Validation):', expirationTime.isAfter(moment()));
-
-//     console.log('Mengupdate password untuk email:', email);
-//     console.log('Password Baru:', newPassword);
-
-//     // Memeriksa apakah token masih valid setelah mendapatkan email
-//     const isTokenValid = moment().isBefore(expirationTime);
-//     console.log('Apakah Token Valid:', isTokenValid);
-
-//     // Memastikan token masih valid sebelum melanjutkan
-//     if (!isTokenValid) {
-//       throw new Error('Token reset tidak valid atau sudah kedaluwarsa.');
-//     }
-
-//     // Memperbarui password di database tanpa melakukan hashing
-//     const updateQuery = 'UPDATE admin SET password = ? WHERE email = ?';
-//     const updateResult = await runQuery(updateQuery, [newPassword, email]);
-
-//     console.log('Hasil Update:', updateResult);
-
-//     // Pastikan terjadi pembaruan pada password
-//     if (updateResult.affectedRows === 0) {
-//       throw new Error('Gagal memperbarui password.');
-//     }
-
-//     // Logging waktu setelah penghapusan token
-//     console.log('Current Time (After Token Removal):', moment().format());
-
-//     // Pencatatan tambahan untuk debug
-//     console.log('Menghapus token reset dari database.');
-//     await removeResetToken(token);
-
-//     console.log('Password berhasil direset.');
-
-//     return email;
-//   } catch (error) {
-//     console.error('Error mereset password:', error);
-//     throw error;
-//   }
-// }
-
-
-
-
 
 
 function checkRole(role) {
@@ -327,7 +267,7 @@ async function logout() {
 }
 
 
-// Fungsi untuk memeriksa login
+// Fungsi untuk login Admin
 async function loginAdmin(username, inputPassword) {
   const query = 'SELECT password FROM admin WHERE username = ?';
   try {
@@ -387,8 +327,6 @@ async function loginAdmin(username, inputPassword) {
 //     throw error;
 //   }
 // }
-
-
 
 
 async function loadBook(){
@@ -597,51 +535,51 @@ async function saveUser(name, notlp, alamat, username, password) {
 
 
 
-async function updateUser(username, updatedUser) {
-  try {
-    // Periksa apakah kontak dengan username yang sama sudah ada dalam database
-    const existingUser = await findUserByUsername(username);
-    if (!existingUser) {
-      console.log('User tidak ditemukan.');
-      return false;
+  async function updateUser(username, updatedUser) {
+    try {
+      // Periksa apakah kontak dengan username yang sama sudah ada dalam database
+      const existingUser = await findUserByUsername(username);
+      if (!existingUser) {
+        console.log('User tidak ditemukan.');
+        return false;
+      }
+
+      // Validasi password jika diperlukan
+
+      const query = 'UPDATE users SET name = ?, notlp = ?, alamat = ?, username = ?, password = ? WHERE username = ?';
+      const values = [updatedUser.name, updatedUser.notlp, updatedUser.alamat, updatedUser.username, updatedUser.password, username];
+      const result = await runQuery(query, values);
+
+      if (result.affectedRows > 0) {
+        console.log('User berhasil diperbarui.');
+        return true;
+      } else {
+        console.log('User gagal diperbarui.');
+        return false;
+      }
+    } catch (err) {
+      console.error('Error saat memperbarui data pengguna:', err);
+      throw err;
     }
-
-    // Validasi password jika diperlukan
-
-    const query = 'UPDATE users SET name = ?, notlp = ?, alamat = ?, username = ?, password = ? WHERE username = ?';
-    const values = [updatedUser.name, updatedUser.notlp, updatedUser.alamat, updatedUser.username, updatedUser.password, username];
-    const result = await runQuery(query, values);
-
-    if (result.affectedRows > 0) {
-      console.log('User berhasil diperbarui.');
-      return true;
-    } else {
-      console.log('User gagal diperbarui.');
-      return false;
-    }
-  } catch (err) {
-    console.error('Error saat memperbarui data pengguna:', err);
-    throw err;
   }
-}
 
 
-async function deleteUser(username) {
-  try {
-    // Periksa apakah kontak dengan username yang ingin dihapus ada
-    const existingUser = await findUserByUsername(username);
-    if (!existingUser) {
-      console.log('User tidak ditemukan.');
-      return false;
+  async function deleteUser(username) {
+    try {
+      // Periksa apakah kontak dengan username yang ingin dihapus ada
+      const existingUser = await findUserByUsername(username);
+      if (!existingUser) {
+        console.log('User tidak ditemukan.');
+        return false;
+      }
+      const query = 'DELETE FROM users WHERE username = ?';
+      const values = [username];
+      await runQuery(query, values);
+      console.log(`User dengan username ${username} berhasil dihapus.`);
+    } catch (err) {
+      console.error('Error:', err);
     }
-    const query = 'DELETE FROM users WHERE username = ?';
-    const values = [username];
-    await runQuery(query, values);
-    console.log(`User dengan username ${username} berhasil dihapus.`);
-  } catch (err) {
-    console.error('Error:', err);
   }
-}
 
 
 // Fungsi untuk mengambil data riwayat transaksi

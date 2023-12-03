@@ -118,10 +118,12 @@
             </tr>
         </thead>
         <tbody>
+            <% let grandTotal = 0; %>
             <% for (let i = 0; i < riwayatTransaksi.length; i++) { %>
                 <% const transaksi = riwayatTransaksi[i]; %>
                 <!-- Loop through detail_transaksi for the current transaction -->
                 <% const detailBarang = transaksi.detail_transaksi ? transaksi.detail_transaksi.split(';') : [] %>
+                <% let totalPenjualan = 0; %>
                 <% for (let j = 0; j < detailBarang.length; j++) { %>
                     <% const barangInfo = detailBarang[j].split(':') %>
                     <tr>
@@ -134,8 +136,14 @@
                         <td>Rp <%= barangInfo[4]?.toLocaleString() %></td> <!-- Harga Jual (use optional chaining) -->
                         <td>Rp <%= (barangInfo[2] * barangInfo[4])?.toLocaleString() %></td> <!-- Total -->
                     </tr>
+                    <% totalPenjualan += (barangInfo[2] * barangInfo[4]); %>
                 <% } %>
+                <% grandTotal += totalPenjualan; %>
             <% } %>
+            <tr>
+                <td colspan="7" style="text-align: right;"><strong>Total Penjualan</strong></td>
+                <td><strong>Rp <%= grandTotal.toLocaleString() %></strong></td>
+            </tr>
         </tbody>
     </table> 
     
@@ -178,6 +186,7 @@ async function getFilteredHistory() {
 function updateTable(historyData) {
     try {
         const tbody = document.querySelector('.buku-table tbody');
+        let grandTotal = 0;
 
         // Clear existing rows
         tbody.innerHTML = '';
@@ -191,6 +200,7 @@ function updateTable(historyData) {
             for (let j = 0; j < detailBarang.length; j++) {
                 const barangInfo = detailBarang[j].split(':');
                 const total = barangInfo[2] * barangInfo[4];
+                totalPenjualan += total;
 
                 // Membuat elemen <tr> dan mengisinya dengan data
                 const row = document.createElement('tr');
@@ -205,6 +215,12 @@ function updateTable(historyData) {
                     <td>Rp ${total.toLocaleString()}</td>
                 `;
 
+                // Menambahkan baris total penjualan ke tabel
+                const totalRow = document.createElement('tr');
+                totalRow.innerHTML = `
+                    <td colspan="7" style="text-align: right;"><strong>Total Penjualan</strong></td>
+                    <td><strong>Rp ${grandTotal.toLocaleString()}</strong></td>
+                `;
                 // Menambahkan elemen <tr> ke dalam tbody
                 tbody.appendChild(row);
             }
